@@ -1,0 +1,21 @@
+name: Sync Forex Calendar
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'   # هر ۶ ساعت یکبار
+  workflow_dispatch:        # امکان اجرای دستی
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch and send data
+        run: |
+          curl -s -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36" \
+               -H "Referer: https://www.forexfactory.com/calendar" \
+               https://nfs.faireconomy.media/ff_calendar_thisweek.json -o calendar.json
+          
+          curl -X POST "https://YOUR_BASE44_API_ENDPOINT" \
+               -H "Content-Type: application/json" \
+               -H "Authorization: Bearer ${{ secrets.BASE44_API_KEY }}" \
+               --data @calendar.json
